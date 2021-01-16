@@ -202,6 +202,20 @@ def graph_evaluation(data, adj_matrix, device='cpu', batch_size=-1, **kwargs):
     return cgnn.run(obs, **kwargs)
 
 
+def train_given_graph(data, adj_matrix, device='cpu', batch_size=-1, **kwargs):
+    """Evaluate a graph taking account of the hardware."""
+    if isinstance(data, th.utils.data.Dataset):
+        obs = data.to(device)
+    else:
+        obs = th.Tensor(scale(data.values)).to(device)
+    if batch_size == -1:
+        batch_size = obs.__len__()
+    cgnn = CGNN_model(adj_matrix, batch_size, **kwargs).to(device)
+    cgnn.reset_parameters()
+    cgnn.run(obs, **kwargs)
+    return cgnn
+
+
 def parallel_graph_evaluation(data, adj_matrix, nruns=16,
                               njobs=None, gpus=None, **kwargs):
     """Parallelize the various runs of CGNN to evaluate a graph."""
