@@ -58,3 +58,6 @@ coverage.xml
 .hypothesis/
 test_data.csv
 test_target.csv
+
+temp/
+venv
