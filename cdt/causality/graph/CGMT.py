@@ -322,7 +322,7 @@ def graph_evaluation(data, adj_matrix, device='cpu', batch_size=-1, **kwargs):
         obs = th.Tensor(scale(data.values)).to(device)
     if batch_size == -1:
         batch_size = obs.__len__()
-        cgmt = CGMT_model(adj_matrix, batch_size, device=device, **kwargs)
+        cgmt = CGMT_model(adj_matrix, batch_size **kwargs)
         cgmt.to(device)
     cgmt.reset_parameters()
     return cgmt.run(obs, **kwargs)
@@ -394,11 +394,27 @@ def hill_climbing(data, graph, **kwargs):
 
 class CGMT(GraphModel):
 
-    def __init__(self, nh=20, nruns=16, njobs=None, gpus=None, batch_size=-1,
+    def __init__(self,
+                 nh=5,
+                 num_encoders=1,
+                 d_input=2,
+                 d_model=4,
+                 dim_feedforward=8,
+                 n_hidden=8,
+                 n_head=1,
+                 dropout=0,
+                 nruns=16, njobs=None, gpus=None, batch_size=-1,
                  lr=0.01, train_epochs=1000, test_epochs=1000, verbose=None,
                  dataloader_workers=0):
         """ Initialize the CGNN Model."""
         super(CGMT, self).__init__()
+        self.dropout = dropout
+        self.n_head = n_head
+        self.n_hidden = n_hidden
+        self.dim_feedforward = dim_feedforward
+        self.d_model = d_model
+        self.d_input = d_input
+        self.num_encoders = num_encoders
         self.nh = nh
         self.nruns = nruns
         self.njobs = SETTINGS.get_default(njobs=njobs)
@@ -468,7 +484,15 @@ class CGMT(GraphModel):
         # if not isinstance(data, th.utils.data.Dataset):
         #     data = MetaDataset(data)
 
-        return alg_dic[alg](data, dag, njobs=self.njobs, nh=self.nh,
+        return alg_dic[alg](data, dag,
+                            num_encoders=self.num_encoders,
+                            d_input=self.d_input,
+                            d_model=self.d_model,
+                            dim_feedforward=self.dim_feedforward,
+                            n_hidden=self.n_hidden,
+                            n_head=self.n_head,
+                            dropout=self.dropout,
+                            njobs=self.njobs,
                             nruns=self.nruns, gpus=self.gpus,
                             lr=self.lr, train_epochs=self.train_epochs,
                             test_epochs=self.test_epochs, verbose=self.verbose,
