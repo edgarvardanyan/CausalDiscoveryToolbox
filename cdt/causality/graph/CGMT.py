@@ -322,7 +322,7 @@ def graph_evaluation(data, adj_matrix, device='cpu', batch_size=-1, **kwargs):
         obs = th.Tensor(scale(data.values)).to(device)
     if batch_size == -1:
         batch_size = obs.__len__()
-        cgmt = CGMT_model(adj_matrix, batch_size **kwargs)
+        cgmt = CGMT_model(adj_matrix, batch_size, **kwargs)
         cgmt.to(device)
     cgmt.reset_parameters()
     return cgmt.run(obs, **kwargs)
